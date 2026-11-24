@@ -98,9 +98,20 @@ namespace HLTStudio.AIScripts
 		{
 			string architecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432") ??
 				Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
-			string npmArchitecture = string.Equals(architecture, "ARM64", StringComparison.OrdinalIgnoreCase) ? "arm64" : "x64";
+			bool arm64 = string.Equals(architecture, "ARM64", StringComparison.OrdinalIgnoreCase);
 
-			foreach (string entry in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator))
+			var directories = new List<string>((Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator));
+			string applicationData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+			// 起動元の PATH に npm のユーザー用ディレクトリがない場合にも対応する。
+			if (!string.IsNullOrEmpty(applicationData))
+				directories.Add(Path.Combine(applicationData, "npm"));
+
+			string platformPackage = arm64 ? "codex-win32-arm64" : "codex-win32-x64";
+			string vendorDirectory = arm64 ? "aarch64-pc-windows-msvc" : "x86_64-pc-windows-msvc";
+			string vendorPath = Path.Combine("vendor", vendorDirectory, "bin", "codex.exe");
+
+			foreach (string entry in directories)
 			{
 				string directory = entry.Trim().Trim('"');
 				if (!Path.IsPathRooted(directory))
@@ -112,8 +123,6 @@ namespace HLTStudio.AIScripts
 
 				// npm の .cmd を経由せず、Windows 用の実行ファイルを直接起動する。
 				string package = Path.Combine(directory, @"node_modules\@openai\codex");
-				string platformPackage = "codex-win32-" + npmArchitecture;
-				string vendorPath = Path.Combine("vendor", npmArchitecture + "-pc-windows-msvc", "bin", "codex.exe");
 				string installed = Path.Combine(package, @"node_modules\@openai", platformPackage, vendorPath);
 				if (File.Exists(installed))
 					return installed;
@@ -127,7 +136,7 @@ namespace HLTStudio.AIScripts
 					return installed;
 			}
 
-			throw new FileNotFoundException("PATH から Codex CLI を見つけられませんでした。", "codex.exe");
+			throw new FileNotFoundException("PATH とユーザー用の npm フォルダから Codex CLI を見つけられませんでした。Codex CLI のインストール先を PATH に追加してください。", "codex.exe");
 		}
 
 		private static void WaitFor(Task task, Stopwatch elapsed)

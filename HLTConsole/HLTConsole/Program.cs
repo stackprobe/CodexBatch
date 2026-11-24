@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using HLTStudio.AIScripts;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Windows.Forms;
 using HLTStudio.Commons;
+using HLTStudio.AIScripts;
 
 namespace HLTStudio
 {
@@ -14,28 +21,78 @@ namespace HLTStudio
 
 		private void Main2(ArgsReader ar)
 		{
+			if (ProcMain.DEBUG)
+			{
+				Main3();
+			}
+			else
+			{
+				Main4(ar);
+			}
+			SCommon.OpenOutputDirIfCreated();
+		}
+
+		private void Main3()
+		{
+#if DEBUG
+			// -- choose one --
+
+			//Main4(new ArgsReader(new string[] { }));
+			//Main4(new ArgsReader(new string[] { }));
+			//Main4(new ArgsReader(new string[] { }));
+
+			// --
+#endif
+			SCommon.Pause();
+		}
+
+		private void Main4(ArgsReader ar)
+		{
 			try
 			{
-				string[] files = ar.TrailArgs().ToArray();
-				if (files.Length != 1)
-					throw new ArgumentException("スクリプトファイルを1個指定してください。");
-
-				string file = files[0];
-				ProcMain.WriteLog("スクリプトを読み込みます。");
-				ProcMain.WriteLog("< " + file);
-
-				var script = new AIScript(file);
-
-				ProcMain.WriteLog("スクリプトを実行します。");
-				script.Run();
-				ProcMain.WriteLog("スクリプトを実行しました。");
+				Main5(ar);
 			}
 			catch (Exception ex)
 			{
 				ProcMain.WriteLog(ex);
-				Environment.ExitCode = 1;
+
+				MessageBox.Show(ex.ToString(), $"{Path.GetFileNameWithoutExtension(ProcMain.SelfFile)} / エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-			SCommon.OpenOutputDirIfCreated();
+		}
+
+		private void Main5(ArgsReader ar)
+		{
+			string[] files = ar.TrailArgs()
+				.Select(file => SCommon.MakeFullPath(file))
+				.ToArray();
+
+			if (files.Length == 0)
+				throw new Exception("スクリプトファイルが指定されていません！");
+
+			foreach (string file in files)
+				if (!File.Exists(file))
+					throw new Exception("スクリプトファイルが存在しません！" + file);
+
+			try
+			{
+				foreach (string file in files)
+				{
+					ProcMain.WriteLog("スクリプトを読み込みます。");
+					ProcMain.WriteLog("< " + file);
+
+					var script = new AIScript(file);
+
+					ProcMain.WriteLog("スクリプトを実行します。");
+
+					script.Run();
+
+					ProcMain.WriteLog("スクリプトを実行しました。");
+				}
+			}
+			catch (Exception ex)
+			{
+				ProcMain.WriteLog(ex);
+			}
 		}
 	}
 }

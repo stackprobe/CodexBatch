@@ -1,5 +1,5 @@
 AllFeatures.txt はサンプルスクリプトです。
 
-以下のフォルダを勝手に作成・書き込みすることに注意してください。
-C:\temp
-C:\temp\CodexBatchTest
+実行前に C:\temp が存在することを確認してください。
+このサンプルは C:\temp を Codex の書き込み先に追加し、C:\temp\CodexBatchTest を作成します。
+C:\temp\CodexBatchTest がすでに存在する場合は、中身ごと削除してから作り直します。

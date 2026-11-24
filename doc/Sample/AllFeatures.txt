@@ -1,5 +1,5 @@
 // 全機能サンプル。CP932・CRLF で保存しています。
-// 同じフォルダの RunAllFeatures.bat で実行してください。
+// 実行するときは HLTConsole.exe の引数にこのファイルのパスを指定してください。
 // C:/temp/CodexBatchTest は実行のたびに中身を削除して作り直します。
 
 /*

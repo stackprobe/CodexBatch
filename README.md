@@ -36,4 +36,4 @@ Codex の応答はコンソールに表示されます。Codex の作業フォ�
 ## 書式とサンプル
 
 - [AiScript 書式仕様書](spec/Script_Syntax.md) で、構文の詳細と組み合わせ例を確認できます。
-- [サンプルスクリプト](Sample/AllFeatures.txt) で、繰り返しや条件分岐、セッション共有の例を確認できます。このサンプルを実行すると、`C:\temp\CodexBatchTest` の中身が削除され、フォルダが作り直されます。
+- [サンプルスクリプト](doc/Sample/AllFeatures.txt) で、繰り返しや条件分岐、セッション共有の例を確認できます。このサンプルを実行すると、`C:\temp\CodexBatchTest` の中身が削除され、フォルダが作り直されます。

@@ -50,6 +50,8 @@ namespace HLTStudio.AIScripts
 				StandardErrorEncoding = Utf8,
 			};
 
+			ProcMain.WriteLog("Codex に渡すプロンプト：" + Environment.NewLine + prompt);
+
 			using (Process process = Process.Start(startInfo))
 			{
 				var elapsed = Stopwatch.StartNew();

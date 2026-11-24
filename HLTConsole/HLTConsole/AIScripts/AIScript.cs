@@ -67,12 +67,15 @@ namespace HLTStudio.AIScripts
 
 			public void DeletePath(string path)
 			{
-				SCommon.DeletePath(this.ResolveDeletionPath(path));
+				string fullPath = this.ResolveDeletionPath(path);
+				ProcMain.WriteLog($"delete：{fullPath}");
+				SCommon.DeletePath(fullPath);
 			}
 
 			public void ResetDirectory(string path)
 			{
 				string directory = this.ResolveDeletionPath(path);
+				ProcMain.WriteLog($"resetdir：{directory}");
 
 				if (Directory.Exists(directory))
 					SCommon.DeletePath(directory);
@@ -83,6 +86,7 @@ namespace HLTStudio.AIScripts
 			public void AddWritableDirectory(string path)
 			{
 				string directory = Path.GetFullPath(this.ResolvePath(path));
+				ProcMain.WriteLog($"writable：{directory}");
 
 				if (!Directory.Exists(directory))
 					throw new DirectoryNotFoundException("書き込み先のフォルダが見つかりません。パス：" + directory);

@@ -1,0 +1,5 @@
+AllFeatures.txt はサンプルスクリプトです。
+
+以下のフォルダを勝手に作成・書き込みすることに注意してください。
+C:\temp
+C:\temp\CodexBatchTest

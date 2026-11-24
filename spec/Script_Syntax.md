@@ -15,6 +15,9 @@ AiScript は、自然言語で記述したプロンプトを Codex に渡し、�
 | `session` | Codex セッションの共有 |
 | `${name}` | プロンプト内の変数展開 |
 | `//`、`/* ... */` | コメント |
+| `writable` | Codex の書き込み先の追加 |
+| `resetdir` | フォルダの作り直しと書き込み先の追加 |
+| `delete` | ファイルまたはフォルダの削除 |
 
 ## 2. 基本書式
 
@@ -101,7 +104,7 @@ if ( EXISTS "result.txt" ) // ファイルがある場合だけ実行
 
 ## 5. パスの記述
 
-`EXISTS` および `foreach ... : FILE` で使用するパスは次の形式で記述する。
+`EXISTS`、`foreach ... : FILE`、`delete`、`resetdir`、`writable` で使用するパスは次の形式で記述する。
 
 ```text
 C:\temp\DATA.txt
@@ -382,7 +385,42 @@ foreach name : "東京", "大阪"
 }
 ```
 
-## 11. 未対応の構文
+## 11. ファイル・フォルダの操作
+
+### 11.1 delete
+
+```text
+delete C:\temp\CodexBatchTest\result.txt
+delete "C:\temp\CodexBatchTest\一時フォルダ"
+```
+
+- 指定先がファイルならそのファイルを削除する。フォルダなら配下も含めて削除する。
+- 指定先が存在しなければ何もしない。
+
+### 11.2 resetdir
+
+```text
+resetdir C:\temp\CodexBatchTest
+resetdir "C:\temp\My Data"
+```
+
+- 指定先にフォルダがなければ、新しいフォルダを作成する。フォルダがあれば配下ごと削除してから、同じパスに空のフォルダを作成する。
+- 同じパスにファイルがある場合はエラーとする。
+- 作成したフォルダは `writable` と同じ書き込み先に追加する。
+
+### 11.3 writable
+
+```text
+writable C:\temp\CodexBatchTest
+writable "C:\temp\My Data"
+```
+
+- 既存のフォルダを、同じスクリプトの後続の Codex 呼び出しで書き込める場所として追加する。`session` の再開時にも適用する。
+- フォルダが存在しない場合はエラーとする。Windows の NTFS アクセス許可は変更しない。
+
+3つのコマンドはそれぞれ独立した行に記述する。パスは第5節の書式に従い、空白などがなければ二重引用符を省略できる。ドライブや共有のルートは `delete` と `resetdir` の対象にできない。
+
+## 12. 未対応の構文
 
 次の構文はサポートしない。
 
@@ -393,7 +431,7 @@ foreach name : "東京", "大阪"
 - プロンプト外の変数展開
 - `session` の入れ子
 
-## 12. 統合サンプル
+## 13. 統合サンプル
 
 先行するプロンプトで調査対象ファイルを生成し、存在を確認してから、その各行について調査する例。
 

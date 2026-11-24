@@ -14,17 +14,32 @@ namespace HLTStudio.AIScripts
 		private const int TimeoutMilliseconds = 30 * 60 * 1000;
 		private static readonly Encoding Utf8 = new UTF8Encoding(false);
 
-		public static string Run(string workingDirectory, string prompt, string sessionId)
+		public static string Run(string workingDirectory, string prompt, string sessionId, IEnumerable<string> writableDirectories)
 		{
 			const string options = "--json --skip-git-repo-check -c sandbox_mode=workspace-write";
-			string arguments = sessionId == null
-				? "exec " + options + " -"
-				: "exec resume " + options + " " + Guid.Parse(sessionId).ToString("D") + " -";
+			var arguments = new StringBuilder("exec ");
+
+			// --add-dir は resume より前に指定する。
+			foreach (string directory in writableDirectories)
+			{
+				// 閉じ引用符の直前にあるバックスラッシュは二重にする。
+				int trailingBackslashes = directory.Length - directory.TrimEnd('\\').Length;
+				arguments.Append("--add-dir \"").Append(directory).Append('\\', trailingBackslashes).Append("\" ");
+			}
+
+			if (sessionId != null)
+				arguments.Append("resume ");
+
+			arguments.Append(options);
+			if (sessionId != null)
+				arguments.Append(' ').Append(Guid.Parse(sessionId).ToString("D"));
+
+			arguments.Append(" -");
 
 			var startInfo = new ProcessStartInfo
 			{
 				FileName = FindExecutable(),
-				Arguments = arguments,
+				Arguments = arguments.ToString(),
 				WorkingDirectory = workingDirectory,
 				UseShellExecute = false,
 				CreateNoWindow = true,

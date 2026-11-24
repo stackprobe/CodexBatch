@@ -13,6 +13,7 @@ namespace HLTStudio.AIScripts
 	{
 		private const string Identifier = @"[A-Za-z_][A-Za-z0-9_]*";
 		private static readonly Regex VariableReference = new Regex(@"\$?(?:\$\{(" + Identifier + @")\})");
+		private static readonly Regex PathStatement = new Regex(@"^(delete|resetdir|writable)\s+(.+)\z");
 		private static readonly Regex IfHeader = new Regex(@"^if\s*(\(.*\))\z");
 		private static readonly Regex ForHeader = new Regex(@"^for\s+(" + Identifier + @")\s*:\s*([+-]?[0-9]+)\s*\.\.\.\s*([+-]?[0-9]+)\z");
 		private static readonly Regex ForeachHeader = new Regex(@"^foreach\s+(" + Identifier + @")\s*:\s*(.+)\z");
@@ -85,7 +86,20 @@ namespace HLTStudio.AIScripts
 				return execution => execution.RunSession(body);
 			}
 
-			Match match = IfHeader.Match(line);
+			Match match = PathStatement.Match(line);
+			if (match.Success)
+			{
+				string path = ParsePath(match.Groups[2].Value, message => this.Error(lineNumber, message));
+
+				switch (match.Groups[1].Value)
+				{
+					case "delete": return execution => execution.DeletePath(path);
+					case "resetdir": return execution => execution.ResetDirectory(path);
+					case "writable": return execution => execution.AddWritableDirectory(path);
+				}
+			}
+
+			match = IfHeader.Match(line);
 			if (match.Success)
 			{
 				var reader = new ConditionReader(match.Groups[1].Value, message => this.Error(lineNumber, message));

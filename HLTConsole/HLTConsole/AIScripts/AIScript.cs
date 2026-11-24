@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using HLTStudio.Commons;
 
 namespace HLTStudio.AIScripts
 {
@@ -47,6 +49,7 @@ namespace HLTStudio.AIScripts
 		internal sealed class Execution
 		{
 			private readonly string WorkingDirectory;
+			private readonly HashSet<string> WritableDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 			private bool InSession;
 			private string SessionId;
 
@@ -60,6 +63,44 @@ namespace HLTStudio.AIScripts
 			public string ResolvePath(string path)
 			{
 				return Path.Combine(this.WorkingDirectory, path);
+			}
+
+			public void DeletePath(string path)
+			{
+				SCommon.DeletePath(this.ResolveDeletionPath(path));
+			}
+
+			public void ResetDirectory(string path)
+			{
+				string directory = this.ResolveDeletionPath(path);
+
+				if (Directory.Exists(directory))
+					SCommon.DeletePath(directory);
+
+				Directory.CreateDirectory(directory);
+				this.WritableDirectories.Add(directory);
+			}
+
+			public void AddWritableDirectory(string path)
+			{
+				string directory = Path.GetFullPath(this.ResolvePath(path));
+
+				if (!Directory.Exists(directory))
+					throw new DirectoryNotFoundException("書き込み先のフォルダが見つかりません。パス：" + directory);
+
+				this.WritableDirectories.Add(directory);
+			}
+
+			private string ResolveDeletionPath(string path)
+			{
+				string fullPath = Path.GetFullPath(this.ResolvePath(path));
+				string root = Path.GetPathRoot(fullPath);
+				char[] separators = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+
+				if (string.Equals(fullPath.TrimEnd(separators), root.TrimEnd(separators), StringComparison.OrdinalIgnoreCase))
+					throw new IOException("ルートディレクトリは削除できません。パス：" + fullPath);
+
+				return fullPath.TrimEnd(separators);
 			}
 
 			public string[] ReadLines(string path)
@@ -112,7 +153,7 @@ namespace HLTStudio.AIScripts
 
 			public void RunPrompt(string prompt)
 			{
-				string sessionId = CodexRunner.Run(this.WorkingDirectory, prompt, this.SessionId);
+				string sessionId = CodexRunner.Run(this.WorkingDirectory, prompt, this.SessionId, this.WritableDirectories.Where(Directory.Exists));
 				if (this.InSession)
 					this.SessionId = sessionId;
 			}

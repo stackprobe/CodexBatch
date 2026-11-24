@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using HLTStudio.Commons;
+using HLTStudio.AIScripts;
 
 namespace HLTStudio
 {
@@ -61,7 +62,37 @@ namespace HLTStudio
 
 		private void Main5(ArgsReader ar)
 		{
-			// TODO
+			string[] files = ar.TrailArgs()
+				.Select(file => SCommon.MakeFullPath(file))
+				.ToArray();
+
+			if (files.Length == 0)
+				throw new Exception("スクリプトファイルが指定されていません！");
+
+			foreach (string file in files)
+				if (!File.Exists(file))
+					throw new Exception("スクリプトファイルが存在しません！" + file);
+
+			try
+			{
+				foreach (string file in files)
+				{
+					ProcMain.WriteLog("スクリプトを読み込みます。");
+					ProcMain.WriteLog("< " + file);
+
+					var script = new AIScript(file);
+
+					ProcMain.WriteLog("スクリプトを実行します。");
+
+					script.Run();
+
+					ProcMain.WriteLog("スクリプトを実行しました。");
+				}
+			}
+			catch (Exception ex)
+			{
+				ProcMain.WriteLog(ex);
+			}
 		}
 	}
 }

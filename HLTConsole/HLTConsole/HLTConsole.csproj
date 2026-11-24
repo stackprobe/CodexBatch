@@ -49,9 +49,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AIScripts\AIScript.cs" />
+    <Compile Include="AIScripts\CodexRunner.cs" />
+    <Compile Include="AIScripts\ScriptParser.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Commons\ArgsReader.cs" />
     <Compile Include="Commons\ProcMain.cs" />

@@ -8,7 +8,6 @@
 */
 
 resetdir C:\temp\CodexBatchTest
-writable "C:\temp\CodexBatchTest"
 
 <
     C:/temp/CodexBatchTest/ に次のサンプル用ファイル3個を用意してください。
@@ -107,13 +106,30 @@ foreach value : "引用符=\" バックスラッシュ=\\ LF=\nCR=\rタブ=\t //
     >
 }
 
+// 0行の入力ではプロンプトを実行しません。空ファイルは次のループで更新済みかどうかの判定にも使います。
+foreach name : FILE C:\temp\CodexBatchTest\empty.txt
+{
+    <
+        「想定外の空ファイル反復: [${name}]」とだけ返してください。
+    >
+}
+
 // CP932 の行、空行、前後の空白を確認できます。最初の反復中に書き換えても、元の3行を反復します。
 foreach name : FILE "C:\temp\CodexBatchTest\names (CP932).txt"
 {
     <
-        「CP932 の値: [${name}]」と返してください。角括弧内の空白を保持してください。
-        値が前後に半角空白を含む「 東京 」なら、C:/temp/CodexBatchTest/names (CP932).txt を CP932 の1行「更新後」で上書きしてください。このファイル以外は編集しないでください。
+        次の1行だけをそのまま返してください。ファイルは開かず、角括弧内の空白も保持してください。
+
+        CP932 の値: [${name}]
     >
+
+    if ( EXISTS C:\temp\CodexBatchTest\empty.txt )
+    {
+        <
+            C:/temp/CodexBatchTest/names (CP932).txt を CP932 の1行「更新後」で上書きしてください。このファイル以外は編集しないでください。
+        >
+        delete C:\temp\CodexBatchTest\empty.txt
+    }
 }
 
 // 同じファイルを読むと、更新後の1行だけが列挙されます。
@@ -124,7 +140,7 @@ foreach name : FILE "C:\temp\CodexBatchTest\names (CP932).txt"
     >
 }
 
-// UTF-8 BOM 付きの行、展開結果が再展開されないこと、0行の入力を試します。
+// UTF-8 BOM 付きの行と、展開結果が再展開されないことを試します。
 foreach name : FILE C:\temp\CodexBatchTest\names-utf8.txt
 {
     <
@@ -132,15 +148,7 @@ foreach name : FILE C:\temp\CodexBatchTest\names-utf8.txt
     >
 }
 
-foreach name : FILE C:\temp\CodexBatchTest\empty.txt
-{
-    <
-        「想定外の空ファイル反復: [${name}]」とだけ返してください。
-    >
-}
-
-// ファイル、フォルダ、存在しないパスを削除します。
-delete C:\temp\CodexBatchTest\empty.txt
+// フォルダと存在しないパスを削除します。
 resetdir "C:\temp\CodexBatchTest\cleanup folder"
 delete "C:\temp\CodexBatchTest\cleanup folder"
 delete C:\temp\CodexBatchTest\empty.txt

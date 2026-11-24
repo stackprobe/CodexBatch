@@ -78,7 +78,6 @@ namespace HLTStudio.AIScripts
 					SCommon.DeletePath(directory);
 
 				Directory.CreateDirectory(directory);
-				this.WritableDirectories.Add(directory);
 			}
 
 			public void AddWritableDirectory(string path)

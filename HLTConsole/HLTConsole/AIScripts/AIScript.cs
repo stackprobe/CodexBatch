@@ -10,6 +10,7 @@ namespace HLTStudio.AIScripts
 	/// </summary>
 	public class AIScript
 	{
+		public string ScriptFilePath { get; private set; }
 		private readonly string WorkingDirectory;
 		private readonly Action<Execution> Body;
 
@@ -20,6 +21,7 @@ namespace HLTStudio.AIScripts
 		public AIScript(string file)
 		{
 			file = Path.GetFullPath(file);
+			this.ScriptFilePath = file;
 			this.WorkingDirectory = Path.GetDirectoryName(file);
 			this.Body = new ScriptParser(file, ReadText(file)).Parse();
 		}

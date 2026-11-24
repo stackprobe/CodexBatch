@@ -75,19 +75,26 @@ namespace HLTStudio
 
 			try
 			{
-				foreach (string file in files)
+				ProcMain.WriteLog("スクリプトを読み込みます。");
+
+				AIScript[] scripts = files.Select(file =>
 				{
-					ProcMain.WriteLog("スクリプトを読み込みます。");
-					ProcMain.WriteLog("< " + file);
+					ProcMain.WriteLog("読み込み：" + file);
+					AIScript script = new AIScript(file);
+					ProcMain.WriteLog("読み込み OK");
+					return script;
+				})
+				.ToArray();
 
-					var script = new AIScript(file);
+				ProcMain.WriteLog("スクリプトを実行します。");
 
-					ProcMain.WriteLog("スクリプトを実行します。");
-
+				foreach (var script in scripts)
+				{
+					ProcMain.WriteLog("実行：" + script.ScriptFilePath);
 					script.Run();
-
-					ProcMain.WriteLog("スクリプトを実行しました。");
+					ProcMain.WriteLog("実行 OK");
 				}
+				ProcMain.WriteLog("スクリプトを実行しました。");
 			}
 			catch (Exception ex)
 			{

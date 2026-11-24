@@ -1,0 +1,128 @@
+// 全機能サンプル。CP932・CRLF で保存しています。
+// このファイルを C:/temp/CodexBatch-AiScriptSample/AllFeatures.txt にコピーし、リリース版の実行ファイルにコピー先のパスを渡してください。
+// 以下の相対パスは、コピー先のスクリプトがあるフォルダを基準に解決されます。
+
+/*
+    このコメントは Codex に渡されません。
+    if ( EXISTS "ここは構文として扱われません" )
+*/
+
+<
+    C:/temp/CodexBatch-AiScriptSample/ に次のサンプル用ファイル3個を用意してください。
+    names (CP932).txt は CP932 で書いてください。1行目は半角空白で前後を囲んだ「 東京 」、2行目は空行、3行目は「大阪」です。各行は CRLF で終えてください。
+    names-utf8.txt は UTF-8 BOM 付きで「名古屋 $${name}」1行を書いてください。ドル記号と波括弧を含め、指定の文字列をそのまま書いてください。
+    empty.txt は0バイトのファイルにしてください。
+    既存の他のファイルには手を加えず、用意できたら「準備完了」とだけ返してください。
+>
+
+// 相対パス、引用符あり・なしの絶対パス、AND・OR・NOT・括弧。
+if ( EXISTS "AllFeatures.txt" AND ( EXISTS "C:\temp\CodexBatch-AiScriptSample\names (CP932).txt" OR NOT EXISTS "AllFeatures.txt" ) AND EXISTS C:\temp\CodexBatch-AiScriptSample\names-utf8.txt AND NOT EXISTS "C:\temp\CodexBatch-AiScriptSample" ) // ディレクトリは偽
+{
+    <
+        「ファイル存在条件 OK」とだけ返してください。
+    >
+}
+
+// AND が OR より先に評価されるため、この分岐は実行されます。
+if ( EXISTS "AllFeatures.txt" OR NOT EXISTS "AllFeatures.txt" AND NOT EXISTS "AllFeatures.txt" )
+{
+    <
+        「演算子の優先順位 OK」とだけ返してください。
+    >
+}
+
+if ( NOT EXISTS "AllFeatures.txt" )
+{
+    <
+        「想定外の分岐」とだけ返してください。
+    >
+}
+
+// 昇順と負数、降順、開始値と終了値が同じ範囲。同名の変数は内側で一時的に隠れます。
+session
+{
+    <
+        合言葉は「藍色のしおり」です。覚えて「合言葉を記憶」とだけ返してください。
+    >
+
+    for i : -1...0
+    {
+        <
+            「昇順: ${i}」とだけ返してください。
+        >
+    }
+
+    for i : 2...1
+    {
+        <
+            「降順: ${i}」とだけ返してください。
+        >
+    }
+
+    for i : 5...5
+    {
+        foreach i : "内側"
+        {
+            <
+                「内側の i: ${i}」とだけ返してください。
+            >
+        }
+
+        <
+            「外側の i: ${i}」、続けて最初に覚えた合言葉を返してください。
+        >
+    }
+}
+
+// 直接列挙。引用符、バックスラッシュ、LF、CR、タブ、空文字を試します。
+foreach value : "引用符=\" バックスラッシュ=\\ LF=\nCR=\rタブ=\t // /* 文字列 */", ""
+{
+    <
+        BEGIN と END の間の値を、制御文字を \n・\r・\t と表示して返してください。空文字の場合は「空文字」と返してください。
+
+        BEGIN[${value}]END
+
+        // この行はプロンプトの一部です。
+        /* この行もプロンプトの一部です。 */
+        if ( EXISTS "この行もプロンプトの一部です" )
+        {
+        }
+        次の表記をそのまま返してください: $${value}
+    >
+}
+
+// CP932 の行、空行、前後の空白を確認できます。最初の反復中に書き換えても、元の3行を反復します。
+foreach name : FILE "names (CP932).txt"
+{
+    <
+        「CP932 の値: [${name}]」と返してください。角括弧内の空白を保持してください。
+        値が前後に半角空白を含む「 東京 」なら、C:/temp/CodexBatch-AiScriptSample/names (CP932).txt を CP932 の1行「更新後」で上書きしてください。このファイル以外は編集しないでください。
+    >
+}
+
+// 同じファイルを読むと、更新後の1行だけが列挙されます。
+foreach name : FILE "C:\temp\CodexBatch-AiScriptSample\names (CP932).txt"
+{
+    <
+        「再読み込み: [${name}]」とだけ返してください。
+    >
+}
+
+// UTF-8 BOM 付きの行、展開結果が再展開されないこと、0行の入力を試します。
+foreach name : FILE C:\temp\CodexBatch-AiScriptSample\names-utf8.txt
+{
+    <
+        「UTF-8 BOM の値: [${name}]」とだけ返してください。
+    >
+}
+
+foreach name : FILE empty.txt
+{
+    <
+        「想定外の空ファイル反復: [${name}]」とだけ返してください。
+    >
+}
+
+<
+    「全機能サンプル終了」とだけ返してください。
+>
